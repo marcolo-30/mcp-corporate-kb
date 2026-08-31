@@ -1,0 +1,166 @@
+{
+  "description": "Golden set de evaluación para el MCP knowledge-base de Northbridge Analytics (corpus sintético). Cada entrada define la pregunta, la respuesta esperada, el documento y el fragmento exacto que debe citarse. Las entradas con type='trick_no_answer' verifican que el sistema NO invente una respuesta cuando la información no está en el corpus.",
+  "version": "1.0",
+  "items": [
+    {
+      "id": "Q01",
+      "question": "¿Cuántos días hábiles de vacaciones tengo por año?",
+      "expected_answer": "15 días hábiles por año calendario, prorrateados el primer año.",
+      "expected_source_doc": "politica_vacaciones.md",
+      "expected_fragment": "Todos los empleados de tiempo completo acumulan 15 días hábiles de vacaciones por año calendario",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q02",
+      "question": "Si no uso todos mis días de vacaciones este año, ¿cuántos puedo acumular para el siguiente?",
+      "expected_answer": "Hasta un máximo de 5 días; el resto se pierde el 31 de diciembre salvo autorización de RRHH.",
+      "expected_source_doc": "politica_vacaciones.md",
+      "expected_fragment": "Los días no utilizados pueden acumularse de un año a otro hasta un máximo de 5 días",
+      "category": "hr_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q03",
+      "question": "¿Con cuánta anticipación debo pedir mis vacaciones?",
+      "expected_answer": "Al menos 10 días hábiles de anticipación, con aprobación del manager directo.",
+      "expected_source_doc": "politica_vacaciones.md",
+      "expected_fragment": "deben presentarse con al menos 10 días hábiles de anticipación",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q04",
+      "question": "¿Cuántos días debo trabajar desde la oficina bajo el esquema híbrido?",
+      "expected_answer": "3 días presenciales y 2 días remotos por semana.",
+      "expected_source_doc": "politica_home_office.md",
+      "expected_fragment": "3 días de trabajo presencial en oficina y 2 días de trabajo remoto por semana",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q05",
+      "question": "¿Cuánto es el auxilio mensual de home office y necesito presentar facturas para cobrarlo?",
+      "expected_answer": "50 USD mensuales (o equivalente en moneda local); no requiere presentación de facturas.",
+      "expected_source_doc": "politica_home_office.md",
+      "expected_fragment": "auxilio mensual de 50 USD... Este auxilio se paga junto con la nómina mensual y no requiere presentación de facturas",
+      "category": "hr_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q06",
+      "question": "¿Cuánto dura el periodo de prueba y cuántos check-ins de desempeño incluye?",
+      "expected_answer": "90 días calendario, con al menos dos check-ins formales: a los 30 y a los 75 días.",
+      "expected_source_doc": "manual_onboarding.md",
+      "expected_fragment": "El periodo de prueba tiene una duración de 90 días calendario... al menos dos check-ins formales de desempeño: uno a los 30 días y otro a los 75 días",
+      "category": "onboarding",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q07",
+      "question": "¿Dentro de cuántos días debo inscribirme a los beneficios como nuevo empleado?",
+      "expected_answer": "Dentro de los primeros 30 días de ingreso; si no, hay que esperar a la inscripción abierta de julio.",
+      "expected_source_doc": "manual_onboarding.md",
+      "expected_fragment": "dentro de los primeros 30 días de ingreso... deberán esperar al siguiente periodo de inscripción abierta, que ocurre cada mes de julio",
+      "category": "onboarding",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q08",
+      "question": "¿Cuál es la vigencia del contrato con CloudTech Solutions y con cuánta anticipación puede terminarse antes de tiempo?",
+      "expected_answer": "Vigencia inicial de 24 meses; terminación anticipada requiere notificación escrita con al menos 60 días de anticipación.",
+      "expected_source_doc": "contrato_proveedor_cloudtech.md",
+      "expected_fragment": "vigencia inicial de 24 meses... notificación escrita con al menos 60 días de anticipación",
+      "category": "vendor_contract",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q09",
+      "question": "¿Qué penalización aplica si el SLA de disponibilidad de CloudTech cae por debajo del 99.9%?",
+      "expected_answer": "Un crédito de servicio del 5% de la factura mensual por cada punto porcentual bajo el umbral, acumulable hasta el 25% de la factura.",
+      "expected_source_doc": "contrato_proveedor_cloudtech.md",
+      "expected_fragment": "un crédito de servicio equivalente al 5% del valor de la factura mensual... acumulable hasta un máximo del 25%",
+      "category": "vendor_contract",
+      "difficulty": "hard",
+      "type": "factual"
+    },
+    {
+      "id": "Q10",
+      "question": "Según el contrato con HelpDesk Partners, ¿en cuánto tiempo deben responder un incidente crítico?",
+      "expected_answer": "En un máximo de 4 horas.",
+      "expected_source_doc": "contrato_proveedor_soporte_ti.md",
+      "expected_fragment": "Crítico: respuesta en máximo 4 horas",
+      "category": "vendor_contract",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q11",
+      "question": "¿Cuánto dura la obligación de confidencialidad con HelpDesk Partners después de terminar el contrato?",
+      "expected_answer": "3 años posteriores a la terminación del contrato.",
+      "expected_source_doc": "contrato_proveedor_soporte_ti.md",
+      "expected_fragment": "se mantendrá vigente durante 3 años posteriores a la terminación del contrato",
+      "category": "vendor_contract",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q12",
+      "question": "¿Cómo reseteo mi contraseña corporativa y cuánto tiempo tengo antes de que expire el enlace?",
+      "expected_answer": "A través de portal.northbridge.internal/reset; el enlace expira en 15 minutos.",
+      "expected_source_doc": "faq_soporte_ti.md",
+      "expected_fragment": "El enlace de reseteo expira en 15 minutos",
+      "category": "it_support",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q13",
+      "question": "¿Cuál es el límite diario de reembolso por alimentación en viajes de trabajo y qué pasa si un empleado gasta un poco más de ese límite justificándolo?",
+      "expected_answer": "75 USD por día; si se supera, requiere justificación adicional y aprobación del manager (no se rechaza automáticamente).",
+      "expected_source_doc": "politica_gastos.md",
+      "expected_fragment": "límite de reembolso por alimentación durante viajes de trabajo es de 75 USD por día... Gastos que superen este límite requieren justificación adicional y aprobación del manager",
+      "category": "finance_policy",
+      "difficulty": "hard",
+      "type": "factual"
+    },
+    {
+      "id": "Q14",
+      "question": "¿En cuántos días hábiles se investiga una denuncia presentada por el canal ético?",
+      "expected_answer": "En un plazo máximo de 20 días hábiles desde su recepción.",
+      "expected_source_doc": "codigo_conducta.md",
+      "expected_fragment": "se investigan en un plazo máximo de 20 días hábiles desde su recepción",
+      "category": "conduct_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q15_trick",
+      "question": "¿Cuántos días de licencia de maternidad/paternidad ofrece la empresa?",
+      "expected_answer": "No está especificado en los documentos disponibles; el sistema debe indicar que no tiene esa información en vez de inventar un número.",
+      "expected_source_doc": null,
+      "expected_fragment": null,
+      "category": "hr_policy",
+      "difficulty": "hard",
+      "type": "trick_no_answer"
+    },
+    {
+      "id": "Q16_trick",
+      "question": "¿Cuál es el bono anual de desempeño y en qué mes se paga?",
+      "expected_answer": "No está especificado en los documentos disponibles; el sistema debe indicar que no tiene esa información en vez de inventar un número o fecha.",
+      "expected_source_doc": null,
+      "expected_fragment": null,
+      "category": "finance_policy",
+      "difficulty": "hard",
+      "type": "trick_no_answer"
+    }
+  ]
+}

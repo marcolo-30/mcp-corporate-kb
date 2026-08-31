@@ -1,0 +1,27 @@
+[project]
+name = "groundedkb"
+version = "0.1.0"
+description = "MCP server for grounded corporate knowledge-base Q&A, with measured retrieval quality and hallucination rate."
+requires-python = ">=3.11"
+dependencies = [
+    "chromadb>=1.0",
+]
+
+[project.optional-dependencies]
+# Backend de embeddings de calidad real (opcional). El pipeline funciona
+# sin esto usando el HashingEmbedder determinista (ver ingestion/embeddings.py).
+embeddings-real = [
+    "sentence-transformers>=3.0",
+]
+# Se añadirán en las siguientes fases del proyecto:
+# mcp = ["mcp>=1.0"]
+# agent = ["langgraph>=0.2"]
+# eval = ["ragas>=0.2"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

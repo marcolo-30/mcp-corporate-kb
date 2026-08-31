@@ -19,38 +19,6 @@ This project is a direct, hands-on answer to both. It's not a LangChain tutorial
 
 An employee (or an agent acting on their behalf) asks a natural-language question — *"how many vacation days do I accumulate?"*, *"what's the termination notice period with CloudTech?"* — and gets back an answer **grounded in an exact document and fragment**, never a confident-sounding guess.
 
-```
-                    ┌─────────────────────┐
-   natural language │                     │
-   question         │   agent_client/     │
-  ─────────────────▶│   (LangGraph)       │
-                     │                     │
-                     └──────────┬──────────┘
-                                │ MCP protocol
-                                ▼
-                     ┌─────────────────────┐
-                     │   mcp_server/       │
-                     │   - buscar_politica │
-                     │   - resumir_documento│
-                     │   - citar_fuente    │
-                     │   - listar_documentos│
-                     │   + guardrails      │
-                     └──────────┬──────────┘
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │   vector store       │
-                     │   (built by          │
-                     │    ingestion/)       │
-                     └──────────┬──────────┘
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │   corpus/            │
-                     │   7 synthetic docs    │
-                     └─────────────────────┘
-```
-
 ## Repo structure
 
 ```

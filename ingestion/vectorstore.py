@@ -1,9 +1,9 @@
 """
 vectorstore.py
 
-Wrapper delgado sobre ChromaDB. Aísla el resto del pipeline (y del
-mcp_server más adelante) de los detalles de la librería concreta —
-si mañana cambias a pgvector o Qdrant, solo se reescribe este archivo.
+Thin wrapper around ChromaDB. Isolates the rest of the pipeline (and the
+mcp_server later on) from the details of the concrete library — if you
+switch to pgvector or Qdrant tomorrow, only this file needs rewriting.
 """
 
 from __future__ import annotations
@@ -35,9 +35,10 @@ class VectorStore:
     ):
         self._embedder = embedder
         self._client = chromadb.PersistentClient(path=persist_path)
-        # embedding_function=None: nosotros pasamos los vectores ya calculados
-        # con nuestro propio Embedder, en vez de dejar que Chroma descargue
-        # su modelo por defecto (evita dependencia de red no controlada).
+        # embedding_function=None: we pass in vectors we've already
+        # computed with our own Embedder, instead of letting Chroma
+        # download its default model (avoids an uncontrolled network
+        # dependency).
         self._collection: Collection = self._client.get_or_create_collection(
             name=collection_name,
             metadata={"hnsw:space": "cosine"},

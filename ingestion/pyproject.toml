@@ -13,7 +13,7 @@ dependencies = [
 embeddings-real = [
     "sentence-transformers>=3.0",
 ]
-# Se añadirán en las siguientes fases del proyecto:
+# Will be added in later phases of the project:
 # mcp = ["mcp>=1.0"]
 # agent = ["langgraph>=0.2"]
 # eval = ["ragas>=0.2"]

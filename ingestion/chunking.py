@@ -1,14 +1,14 @@
 """
 chunking.py
 
-Divide documentos Markdown en chunks aptos para embeddings, respetando la
-estructura de encabezados (##) en lugar de cortar por longitud fija a ciegas.
+Splits Markdown documents into embedding-ready chunks, respecting the
+heading structure (##) instead of cutting blindly at a fixed length.
 
-Por qué esto importa para el proyecto: los documentos del corpus (políticas,
-contratos) tienen su información organizada por cláusula/sección. Cortar por
-encabezado mantiene cada chunk semánticamente completo (ej. "Cláusula 9 — SLA"
-no se parte a la mitad), lo cual afecta directamente la métrica de
-Retrieval Precision@k que medimos en eval/.
+Why this matters for the project: the corpus documents (policies,
+contracts) organize their information by clause/section. Splitting on
+headings keeps each chunk semantically whole (e.g. "Clause 9 — SLA"
+never gets cut in half), which directly affects the Retrieval
+Precision@k metric measured in eval/.
 """
 
 from __future__ import annotations
@@ -32,12 +32,12 @@ _HEADER_RE = re.compile(r"^(#{1,3})\s+(.*)$", re.MULTILINE)
 
 
 def _split_by_headers(markdown_text: str) -> list[tuple[str, str, int]]:
-    """Divide el texto en secciones (title, body, start_offset) usando
-    encabezados Markdown (#, ##, ###) como puntos de corte."""
+    """Splits the text into sections (title, body, start_offset) using
+    Markdown headings (#, ##, ###) as cut points."""
     matches = list(_HEADER_RE.finditer(markdown_text))
 
     if not matches:
-        return [("(sin título)", markdown_text.strip(), 0)]
+        return [("(untitled)", markdown_text.strip(), 0)]
 
     sections: list[tuple[str, str, int]] = []
     for i, match in enumerate(matches):
@@ -56,8 +56,8 @@ def _split_long_section(
     max_chars: int,
     overlap_chars: int,
 ) -> list[str]:
-    """Si una sección excede max_chars, la subdivide por párrafos con
-    solapamiento (overlap_chars) para no perder contexto en la frontera."""
+    """If a section exceeds max_chars, splits it by paragraphs with
+    overlap (overlap_chars) so context isn't lost at the boundary."""
     if len(body) <= max_chars:
         return [body]
 
@@ -71,7 +71,7 @@ def _split_long_section(
         else:
             if current:
                 pieces.append(current)
-            # overlap: arrastra el final del chunk anterior al siguiente
+            # overlap: carries the tail of the previous chunk into the next
             overlap_text = current[-overlap_chars:] if current else ""
             current = f"{overlap_text}\n\n{para}".strip()
 
@@ -87,8 +87,8 @@ def chunk_markdown_file(
     max_chars: int = 800,
     overlap_chars: int = 150,
 ) -> list[Chunk]:
-    """Lee un archivo Markdown y lo convierte en una lista de Chunk,
-    uno por sección (o varios si la sección es muy larga)."""
+    """Reads a Markdown file and converts it into a list of Chunk objects,
+    one per section (or several if a section is too long)."""
     with open(file_path, encoding="utf-8") as f:
         text = f.read()
 

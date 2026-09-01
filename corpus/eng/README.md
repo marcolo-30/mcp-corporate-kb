@@ -1,13 +1,10 @@
-# mcp-corporate-kb
+# groundedkb
+
+**A production-style MCP server for querying corporate knowledge (HR policies, vendor contracts, support FAQs) — every answer traces back to an exact source, and both retrieval quality and hallucination rate are measured, not assumed.**
+
+> Naming note: repo currently scaffolded as `mcp-groundedkb` / `groundedkb` — rename freely, this README travels with the code either way.
 
 ---
-<p align="center">
-  <img
-    src="corpus/esp/image.png"
-    alt="mcp-corporate-kb architecture"
-    width="100%"
-  >
-</p>
 
 ## Why this project exists
 
@@ -19,6 +16,38 @@ This project is a direct, hands-on answer to both. It's not a LangChain tutorial
 
 An employee (or an agent acting on their behalf) asks a natural-language question — *"how many vacation days do I accumulate?"*, *"what's the termination notice period with CloudTech?"* — and gets back an answer **grounded in an exact document and fragment**, never a confident-sounding guess.
 
+```
+                    ┌─────────────────────┐
+   natural language │                     │
+   question         │   agent_client/     │
+  ─────────────────▶│   (LangGraph)       │
+                     │                     │
+                     └──────────┬──────────┘
+                                │ MCP protocol
+                                ▼
+                     ┌───────────────────────┐
+                     │   mcp_server/         │
+                     │   - search_policy     │
+                     │   - summarize_document│
+                     │   - cite_source       │
+                     │   - list_documents    │
+                     │   + guardrails        │
+                     └──────────┬────────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │   vector store       │
+                     │   (built by          │
+                     │    ingestion/)       │
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │   corpus/            │
+                     │   8 synthetic docs    │
+                     └─────────────────────┘
+```
+
 ## Repo structure
 
 ```
@@ -27,15 +56,15 @@ groundedkb/
 ├── pyproject.toml
 ├── .github/workflows/ci.yml       # lint + tests + eval as a CI gate
 │
-├── corpus/                        # 7 synthetic corporate documents
-│   ├── politica_vacaciones.md
-│   ├── politica_home_office.md
-│   ├── manual_onboarding.md
-│   ├── contrato_proveedor_cloudtech.md
-│   ├── contrato_proveedor_soporte_ti.md
-│   ├── faq_soporte_ti.md
-│   ├── politica_gastos.md
-│   └── codigo_conducta.md
+├── corpus/                        # 8 synthetic corporate documents
+│   ├── vacation_policy.md
+│   ├── remote_work_policy.md
+│   ├── onboarding_manual.md
+│   ├── vendor_contract_cloudtech.md
+│   ├── vendor_contract_it_support.md
+│   ├── it_support_faq.md
+│   ├── expense_policy.md
+│   └── code_of_conduct.md
 │
 ├── ingestion/                      # chunking, embeddings, vector store build
 │   ├── chunking.py
@@ -46,10 +75,10 @@ groundedkb/
 ├── mcp_server/                     # the MCP server — knows nothing about "agents"
 │   ├── server.py
 │   ├── tools/
-│   │   ├── buscar_politica.py
-│   │   ├── resumir_documento.py
-│   │   ├── citar_fuente.py
-│   │   └── listar_documentos.py
+│   │   ├── search_policy.py
+│   │   ├── summarize_document.py
+│   │   ├── cite_source.py
+│   │   └── list_documents.py
 │   └── guardrails.py               # scoping, structured logging
 │
 ├── agent_client/                   # thin consumer of the MCP server
@@ -111,7 +140,7 @@ Metrics computed with [RAGAS](https://github.com/explodinggradients/ragas) where
 
 ## Roadmap
 
-- [x] Phase 1 — Synthetic corpus (7 docs) + golden set (16 Q&A pairs, incl. 2 trick questions)
+- [x] Phase 1 — Synthetic corpus (8 docs) + golden set (16 Q&A pairs, incl. 2 trick questions)
 - [ ] Phase 2 — Ingestion pipeline (chunking, embeddings, vector store)
 - [ ] Phase 3 — MCP server with 4 tools + guardrails
 - [ ] Phase 4 — Agent client (LangGraph) consuming the MCP server

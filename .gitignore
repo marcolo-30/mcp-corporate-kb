@@ -1,0 +1,44 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Vector store / generated index (rebuildable via ingestion/build_index.py)
+.chroma_index/
+.chroma_test/
+*.sqlite3
+
+# Logs
+*.log
+mcp_server_audit.log
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Evaluation run outputs (keep the scripts, not generated results)
+eval/results/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

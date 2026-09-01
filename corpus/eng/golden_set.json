@@ -1,0 +1,166 @@
+{
+  "description": "Golden evaluation set for the groundedkb MCP knowledge base (synthetic Northbridge Analytics corpus). Each entry defines the question, expected answer, and the exact source document + fragment that should be cited. Entries with type='trick_no_answer' verify that the system does NOT fabricate an answer when the information isn't in the corpus.",
+  "version": "1.0",
+  "items": [
+    {
+      "id": "Q01",
+      "question": "How many business days of vacation do I get per year?",
+      "expected_answer": "15 business days per calendar year, prorated during the first year.",
+      "expected_source_doc": "vacation_policy.md",
+      "expected_fragment": "All full-time employees accrue 15 business days of vacation per calendar year",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q02",
+      "question": "If I don't use all my vacation days this year, how many can I carry over to next year?",
+      "expected_answer": "Up to a maximum of 5 days; the rest is forfeited on December 31 unless HR authorizes otherwise.",
+      "expected_source_doc": "vacation_policy.md",
+      "expected_fragment": "Unused days may be carried over from one year to the next up to a maximum of 5 days",
+      "category": "hr_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q03",
+      "question": "How far in advance do I need to request my vacation?",
+      "expected_answer": "At least 10 business days in advance, with approval from the direct manager.",
+      "expected_source_doc": "vacation_policy.md",
+      "expected_fragment": "must be submitted at least 10 business days in advance",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q04",
+      "question": "How many days do I need to work from the office under the hybrid schedule?",
+      "expected_answer": "3 days in-office and 2 days remote per week.",
+      "expected_source_doc": "remote_work_policy.md",
+      "expected_fragment": "3 days of in-office work and 2 days of remote work per week",
+      "category": "hr_policy",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q05",
+      "question": "How much is the monthly home-office stipend, and do I need to submit receipts to get it?",
+      "expected_answer": "50 USD per month (or local currency equivalent); no receipts required.",
+      "expected_source_doc": "remote_work_policy.md",
+      "expected_fragment": "monthly stipend of 50 USD... does not require submitting receipts",
+      "category": "hr_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q06",
+      "question": "How long is the probationary period, and how many performance check-ins does it include?",
+      "expected_answer": "90 calendar days, with at least two formal check-ins: at day 30 and at day 75.",
+      "expected_source_doc": "onboarding_manual.md",
+      "expected_fragment": "The probationary period lasts 90 calendar days... at least two formal performance check-ins: one at day 30 and another at day 75",
+      "category": "onboarding",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q07",
+      "question": "Within how many days do I need to enroll in benefits as a new hire?",
+      "expected_answer": "Within the first 30 days of joining; otherwise you must wait for the July open enrollment period.",
+      "expected_source_doc": "onboarding_manual.md",
+      "expected_fragment": "within the first 30 days of joining... wait for the next open enrollment period, which occurs every July",
+      "category": "onboarding",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q08",
+      "question": "What's the term of the CloudTech Solutions contract, and how much notice is needed to terminate it early?",
+      "expected_answer": "Initial term of 24 months; early termination requires written notice at least 60 days in advance.",
+      "expected_source_doc": "vendor_contract_cloudtech.md",
+      "expected_fragment": "initial term of 24 months... written notice at least 60 days in advance",
+      "category": "vendor_contract",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q09",
+      "question": "What penalty applies if CloudTech's uptime SLA drops below 99.9%?",
+      "expected_answer": "A service credit of 5% of the monthly invoice per percentage point below the threshold, cumulative up to 25% of the invoice.",
+      "expected_source_doc": "vendor_contract_cloudtech.md",
+      "expected_fragment": "a service credit equal to 5% of the value of the corresponding monthly invoice... cumulative up to a maximum of 25%",
+      "category": "vendor_contract",
+      "difficulty": "hard",
+      "type": "factual"
+    },
+    {
+      "id": "Q10",
+      "question": "Under the HelpDesk Partners contract, how quickly must a critical incident be responded to?",
+      "expected_answer": "Within a maximum of 4 hours.",
+      "expected_source_doc": "vendor_contract_it_support.md",
+      "expected_fragment": "Critical: response within a maximum of 4 hours",
+      "category": "vendor_contract",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q11",
+      "question": "How long does the confidentiality obligation with HelpDesk Partners last after the contract ends?",
+      "expected_answer": "3 years after termination of the agreement.",
+      "expected_source_doc": "vendor_contract_it_support.md",
+      "expected_fragment": "remains in effect for 3 years after termination of this agreement",
+      "category": "vendor_contract",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q12",
+      "question": "How do I reset my corporate password, and how long do I have before the link expires?",
+      "expected_answer": "Through portal.northbridge.internal/reset; the link expires in 15 minutes.",
+      "expected_source_doc": "it_support_faq.md",
+      "expected_fragment": "The reset link expires in 15 minutes",
+      "category": "it_support",
+      "difficulty": "easy",
+      "type": "factual"
+    },
+    {
+      "id": "Q13",
+      "question": "What's the daily meal reimbursement limit for business travel, and what happens if an employee spends a bit over that limit with justification?",
+      "expected_answer": "75 USD per day; if exceeded, it requires additional justification and manager approval (not an automatic rejection).",
+      "expected_source_doc": "expense_policy.md",
+      "expected_fragment": "meal reimbursement limit during business travel is 75 USD per day... Expenses exceeding this limit require additional justification and manager approval",
+      "category": "finance_policy",
+      "difficulty": "hard",
+      "type": "factual"
+    },
+    {
+      "id": "Q14",
+      "question": "Within how many business days is a whistleblower report investigated?",
+      "expected_answer": "Within a maximum of 20 business days of receipt.",
+      "expected_source_doc": "code_of_conduct.md",
+      "expected_fragment": "investigated within a maximum of 20 business days of receipt",
+      "category": "conduct_policy",
+      "difficulty": "medium",
+      "type": "factual"
+    },
+    {
+      "id": "Q15_trick",
+      "question": "How many days of parental leave does the company offer?",
+      "expected_answer": "Not specified in the available documents; the system should state it doesn't have that information rather than inventing a number.",
+      "expected_source_doc": null,
+      "expected_fragment": null,
+      "category": "hr_policy",
+      "difficulty": "hard",
+      "type": "trick_no_answer"
+    },
+    {
+      "id": "Q16_trick",
+      "question": "What's the annual performance bonus, and in what month is it paid?",
+      "expected_answer": "Not specified in the available documents; the system should state it doesn't have that information rather than inventing a number or date.",
+      "expected_source_doc": null,
+      "expected_fragment": null,
+      "category": "finance_policy",
+      "difficulty": "hard",
+      "type": "trick_no_answer"
+    }
+  ]
+}

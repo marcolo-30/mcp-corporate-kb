@@ -1,10 +1,11 @@
 """
 build_index.py
 
-Orquesta el pipeline completo de ingesta: lee corpus/, aplica chunking,
-calcula embeddings, y carga todo al vector store.
+Orchestrates the full ingestion pipeline: reads corpus/, applies
+chunking, computes embeddings, and loads everything into the vector
+store.
 
-Uso:
+Usage:
     python -m ingestion.build_index
     python -m ingestion.build_index --backend sentence-transformers
     python -m ingestion.build_index --corpus-dir corpus --persist-path .chroma_index
@@ -33,8 +34,8 @@ def build_index(
     md_files = sorted(corpus_path.glob("*.md"))
     if not md_files:
         raise FileNotFoundError(
-            f"No se encontraron archivos .md en '{corpus_dir}'. "
-            "¿Corriste el script desde la raíz del repo?"
+            f"No .md files found in '{corpus_dir}'. "
+            "Did you run this from the repo root?"
         )
 
     embedder = get_embedder(backend)
@@ -67,34 +68,34 @@ def build_index(
 
 
 def _print_summary(summary: dict) -> None:
-    print("=== Resumen de ingesta ===")
-    print(f"Backend de embeddings : {summary['backend']}")
-    print(f"Documentos indexados  : {summary['documents_indexed']}")
-    print(f"Chunks totales        : {summary['total_chunks']}")
-    print(f"Vectores en el store  : {summary['vectors_in_store']}")
-    print(f"Tiempo total          : {summary['elapsed_seconds']}s")
-    print("\nChunks por documento:")
+    print("=== Ingestion summary ===")
+    print(f"Embedding backend    : {summary['backend']}")
+    print(f"Documents indexed    : {summary['documents_indexed']}")
+    print(f"Total chunks         : {summary['total_chunks']}")
+    print(f"Vectors in store     : {summary['vectors_in_store']}")
+    print(f"Total time           : {summary['elapsed_seconds']}s")
+    print("\nChunks per document:")
     for doc_id, n_chunks in summary["chunks_per_document"].items():
         print(f"  - {doc_id}: {n_chunks}")
 
-    # Meta medible de la Fase 1 del proyecto: 100% de documentos indexados
-    # y tiempo de ingesta < 2 minutos para el corpus completo.
+    # Phase 1 measurable goal: 100% of documents indexed and ingestion
+    # time under 2 minutes for the full corpus.
     if summary["elapsed_seconds"] < 120:
-        print("\n✅ Meta de Fase 1 cumplida: ingesta completa en <2 min.")
+        print("\n✅ Phase 1 goal met: full ingestion in under 2 minutes.")
     else:
-        print("\n⚠️  Ingesta superó los 2 minutos — revisar antes de CI.")
+        print("\n⚠️  Ingestion exceeded 2 minutes — investigate before CI.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Construye el índice vectorial del corpus.")
+    parser = argparse.ArgumentParser(description="Builds the vector index for the corpus.")
     parser.add_argument("--corpus-dir", default="corpus")
     parser.add_argument("--persist-path", default=".chroma_index")
     parser.add_argument(
         "--backend",
         default="hashing",
         choices=["hashing", "sentence-transformers"],
-        help="'hashing' = offline/determinista (default). "
-        "'sentence-transformers' = calidad real, requiere descarga de modelo.",
+        help="'hashing' = offline/deterministic (default). "
+        "'sentence-transformers' = real quality, requires model download.",
     )
     args = parser.parse_args()
 

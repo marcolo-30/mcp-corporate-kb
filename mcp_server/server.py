@@ -1,106 +1,91 @@
 """
-mcp_server/server.py
+server.py
 
-Punto de entrada del servidor MCP. Corre por stdio (transporte por
-defecto y más estándar del SDK — es lo que espera cualquier cliente
-MCP, incluyendo Claude Desktop/Code, sin configuración extra).
+MCP server entrypoint. Registers the 4 knowledge-base tools using the
+official MCP Python SDK (FastMCP), wrapping every call with the
+guardrails defined in guardrails.py (rate limiting + structured audit
+logging).
 
-Uso:
+Run with:
     python -m mcp_server.server
 
-*** NOTA DE COMPATIBILIDAD ***
-El SDK oficial de MCP renombró `FastMCP` (mcp<2) a `MCPServer` (mcp>=2)
-en una versión reciente, manteniendo la misma API de decoradores
-(`@mcp.tool()`) y `mcp.run()`. Este shim intenta ambas para que el
-servidor funcione sin importar cuál tengas instalada — revisa tu
-`pyproject.toml` / lockfile para saber cuál es en tu caso.
+Or, for local interactive testing with the MCP Inspector:
+    mcp dev mcp_server/server.py
 """
 
 from __future__ import annotations
 
-try:
-    from mcp.server.fastmcp import FastMCP  # mcp < 2.x
-except ModuleNotFoundError:
-    from mcp.server.mcpserver import MCPServer as FastMCP  # mcp >= 2.x
+import os
 
+from mcp.server.fastmcp import FastMCP
+
+from ingestion.embeddings import get_embedder
 from ingestion.vectorstore import VectorStore
+from mcp_server.guardrails import guarded_tool_call, log_result
+from mcp_server.tools.search_policy import search_policy as _search_policy
+from mcp_server.tools.cite_source import cite_source as _cite_source
+from mcp_server.tools.list_documents import list_documents as _list_documents
+from mcp_server.tools.summarize_document import summarize_document as _summarize_document
 
-from mcp_server import config
-from mcp_server.embedder_factory import build_embedder
-from mcp_server.tools.buscar_politica import buscar_politica as _buscar_politica
-from mcp_server.tools.citar_fuente import citar_fuente as _citar_fuente
-from mcp_server.tools.listar_documentos import listar_documentos as _listar_documentos
-from mcp_server.tools.resumir_documento import resumir_documento as _resumir_documento
+CORPUS_DIR = os.environ.get("GROUNDEDKB_CORPUS_DIR", "corpus")
+PERSIST_PATH = os.environ.get("GROUNDEDKB_INDEX_PATH", ".chroma_index")
+EMBEDDING_BACKEND = os.environ.get("GROUNDEDKB_EMBEDDING_BACKEND", "hashing")
 
-mcp = FastMCP(
-    name="groundedkb",
-    instructions=(
-        "Servidor MCP de base de conocimiento corporativa. Todas las "
-        "respuestas de buscar_politica y citar_fuente están ancladas a un "
-        "documento y fragmento exacto — si una pregunta no tiene respaldo "
-        "en el corpus, las tools lo reportan explícitamente en vez de "
-        "inventar contenido. Usa buscar_politica primero; usa citar_fuente "
-        "para verificar un chunk_id específico antes de presentarlo como cita."
-    ),
-)
+mcp = FastMCP("groundedkb")
 
-# Un solo VectorStore compartido por todas las tool calls del proceso
-# (Chroma es seguro para lecturas concurrentes desde un mismo cliente).
-_vectorstore = VectorStore(
-    embedder=build_embedder(),
-    persist_path=config.CHROMA_PERSIST_PATH,
-    collection_name=config.COLLECTION_NAME,
-)
+_embedder = get_embedder(EMBEDDING_BACKEND)
+_store = VectorStore(embedder=_embedder, persist_path=PERSIST_PATH)
 
 
 @mcp.tool()
-def buscar_politica(
-    query: str, top_k: int = 3, categoria: str | None = None, role: str | None = None
-) -> dict:
+def search_policy(query: str, top_k: int = 3) -> list[dict]:
+    """Searches the corporate knowledge base (HR policies, vendor
+    contracts, support FAQs) and returns up to `top_k` relevant passages,
+    each with its source document, section, and relevance score.
     """
-    Busca fragmentos relevantes en las políticas y contratos corporativos
-    para responder una pregunta en lenguaje natural. Devuelve fragmentos
-    citables con su documento y sección de origen, nunca una respuesta
-    ya redactada — el llamador debe construir la respuesta final citando
-    estos fragmentos, o reportar que no hay información si "encontrado"
-    es false.
-    """
-    return _buscar_politica(_vectorstore, query, top_k=top_k, categoria=categoria, role=role)
+    guarded_tool_call("search_policy", {"query": query, "top_k": top_k})
+    result = _search_policy(_store, query, top_k=top_k)
+    log_result("search_policy", {"query": query, "top_k": top_k}, f"{len(result)} results")
+    return result
 
 
 @mcp.tool()
-def citar_fuente(chunk_id: str, role: str | None = None) -> dict:
+def cite_source(query: str) -> dict:
+    """Returns a single, confidence-checked citation (document + exact
+    fragment) that answers `query` — or an explicit "not found" if no
+    passage is confident enough. Use this instead of search_policy when
+    you need ONE trustworthy, citable answer rather than candidates to
+    review.
     """
-    Recupera el fragmento exacto indexado bajo un chunk_id (obtenido de
-    buscar_politica), para verificar que una cita es fiel al texto
-    original antes de presentarla al usuario final.
-    """
-    return _citar_fuente(_vectorstore, chunk_id, role=role)
+    guarded_tool_call("cite_source", {"query": query})
+    result = _cite_source(_store, query)
+    log_result("cite_source", {"query": query}, f"found={result['found']}")
+    return result
 
 
 @mcp.tool()
-def resumir_documento(doc_id: str, role: str | None = None) -> dict:
+def summarize_document(doc_id: str) -> dict:
+    """Summarizes a specific document from the corpus, identified by its
+    doc_id (e.g. 'vacation_policy.md'). Use list_documents first if you
+    don't know the exact doc_id.
     """
-    Devuelve un resumen por secciones de un documento completo del
-    corpus, identificado por su doc_id (ver listar_documentos).
-    """
-    return _resumir_documento(doc_id, role=role)
+    guarded_tool_call("summarize_document", {"doc_id": doc_id})
+    result = _summarize_document(CORPUS_DIR, doc_id)
+    log_result("summarize_document", {"doc_id": doc_id}, f"found={result['found']}")
+    return result
 
 
 @mcp.tool()
-def listar_documentos(categoria: str | None = None, role: str | None = None) -> dict:
+def list_documents(category: str | None = None) -> list[dict]:
+    """Lists all documents available in the knowledge base, optionally
+    filtered by category (hr_policy, vendor_contract, onboarding,
+    it_support, finance_policy, conduct_policy).
     """
-    Lista los documentos disponibles en la base de conocimiento,
-    opcionalmente filtrados por categoría (politicas, onboarding,
-    contratos, faq, conducta), junto con cuántos fragmentos tiene cada
-    uno indexados.
-    """
-    return _listar_documentos(_vectorstore, categoria=categoria, role=role)
-
-
-def main() -> None:
-    mcp.run(transport="stdio")
+    guarded_tool_call("list_documents", {"category": category})
+    result = _list_documents(CORPUS_DIR, category=category)
+    log_result("list_documents", {"category": category}, f"{len(result)} documents")
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    mcp.run()

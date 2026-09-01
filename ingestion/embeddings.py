@@ -1,22 +1,23 @@
 """
 embeddings.py
 
-Interfaz de embeddings intercambiable (Strategy pattern) con dos
-implementaciones:
+Interchangeable embeddings interface (Strategy pattern) with two
+implementations:
 
-- `SentenceTransformerEmbedder`: embeddings reales (all-MiniLM-L6-v2),
-  para uso en un entorno con acceso a internet/HuggingFace Hub.
-- `HashingEmbedder`: embedding determinista basado en feature hashing,
-  sin dependencias externas ni descargas de modelos. Sirve como fallback
-  reproducible para CI, tests y entornos sandboxed sin acceso a HF Hub.
+- `SentenceTransformerEmbedder`: real embeddings (all-MiniLM-L6-v2),
+  for use in an environment with internet/HuggingFace Hub access.
+- `HashingEmbedder`: deterministic embedding based on feature hashing,
+  no external dependencies or model downloads. Serves as a reproducible
+  fallback for CI, tests, and sandboxed environments without HF Hub
+  access.
 
-Por qué existe el fallback: un pipeline de ingesta que solo funciona con
-conexión a internet no es testeable de forma determinista en CI. El
-HashingEmbedder no es competitivo en calidad semántica frente a un modelo
-real, pero permite validar TODO el pipeline (chunking → embedding →
-vector store → retrieval) de punta a punta sin depender de una descarga
-externa — que es exactamente la limitación bajo la que se construyó este
-mismo entregable.
+Why the fallback exists: an ingestion pipeline that only works with an
+internet connection isn't deterministically testable in CI. The
+HashingEmbedder isn't competitive in semantic quality against a real
+model, but it lets the ENTIRE pipeline (chunking → embedding →
+vector store → retrieval) be validated end to end without depending on
+an external download — which is exactly the constraint this very
+deliverable was built under.
 """
 
 from __future__ import annotations
@@ -26,12 +27,12 @@ import math
 import re
 from abc import ABC, abstractmethod
 
-_TOKEN_RE = re.compile(r"[a-záéíóúñü0-9]+", re.IGNORECASE)
+_TOKEN_RE = re.compile(r"[a-z0-9]+", re.IGNORECASE)
 
 
 class Embedder(ABC):
-    """Interfaz común. Cualquier implementación debe devolver vectores
-    de la misma dimensión para todos los textos de una misma instancia."""
+    """Common interface. Any implementation must return vectors of the
+    same dimension for all texts within a given instance."""
 
     dimension: int
 
@@ -44,12 +45,12 @@ class Embedder(ABC):
 
 
 class HashingEmbedder(Embedder):
-    """Embedding determinista sin dependencias externas: tokeniza,
-    aplica feature hashing a un vector de tamaño fijo, y normaliza L2.
+    """Deterministic embedding with no external dependencies: tokenizes,
+    applies feature hashing into a fixed-size vector, and L2-normalizes.
 
-    No captura semántica real (no sabe que "vacaciones" y "PTO" son
-    similares) — es un sustituto reproducible, no un reemplazo de
-    producción. Ver SentenceTransformerEmbedder para ese caso.
+    Doesn't capture real semantics (it doesn't know that "vacation" and
+    "PTO" are related) — it's a reproducible stand-in, not a production
+    replacement. See SentenceTransformerEmbedder for that case.
     """
 
     def __init__(self, dimension: int = 384):
@@ -73,11 +74,11 @@ class HashingEmbedder(Embedder):
 
 
 class SentenceTransformerEmbedder(Embedder):
-    """Wrapper sobre sentence-transformers. Requiere el paquete instalado
-    y acceso de red a HuggingFace Hub la primera vez (descarga el modelo).
-    Import perezoso a propósito: si el paquete no está instalado, solo
-    falla cuando realmente se intenta usar esta clase, no al importar
-    el módulo embeddings.py completo.
+    """Wrapper around sentence-transformers. Requires the package to be
+    installed and network access to the HuggingFace Hub the first time
+    (to download the model). Import is lazy on purpose: if the package
+    isn't installed, it only fails when this class is actually used,
+    not when the embeddings.py module is imported.
     """
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
@@ -85,8 +86,8 @@ class SentenceTransformerEmbedder(Embedder):
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:
             raise ImportError(
-                "sentence-transformers no está instalado. "
-                "Instálalo con: pip install sentence-transformers"
+                "sentence-transformers is not installed. "
+                "Install it with: pip install sentence-transformers"
             ) from exc
 
         self._model = SentenceTransformer(model_name)
@@ -97,10 +98,11 @@ class SentenceTransformerEmbedder(Embedder):
 
 
 def get_embedder(backend: str = "hashing") -> Embedder:
-    """Factory. backend='hashing' (default, offline) o 'sentence-transformers'
-    (calidad real, requiere el paquete + descarga del modelo)."""
+    """Factory. backend='hashing' (default, offline) or
+    'sentence-transformers' (real quality, requires the package + model
+    download)."""
     if backend == "hashing":
         return HashingEmbedder()
     if backend == "sentence-transformers":
         return SentenceTransformerEmbedder()
-    raise ValueError(f"Backend de embeddings desconocido: {backend}")
+    raise ValueError(f"Unknown embeddings backend: {backend}")

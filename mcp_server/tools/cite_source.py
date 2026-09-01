@@ -5,7 +5,7 @@ The anti-hallucination tool: given a question, returns ONE citation
 (document + exact fragment) if — and only if — retrieval confidence
 clears a threshold. Below that threshold, it explicitly returns
 "not found" instead of guessing. This is the tool responsible for
-correctly handling the two trick questions in golden_set.json.
+correctly handling the two trick questions in golden_set_esp.json.
 """
 
 from __future__ import annotations

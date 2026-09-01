@@ -3,7 +3,7 @@
 ---
 <p align="center">
   <img
-    src="corpus/esp/image.png"
+    src="corpus/image.png"
     alt="mcp-corporate-kb architecture"
     width="100%"
   >

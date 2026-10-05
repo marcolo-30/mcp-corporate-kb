@@ -16,8 +16,11 @@ Or, for local interactive testing with the MCP Inspector:
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
+
+mcp = MCPServer("My server")
 
 from ingestion.embeddings import get_embedder
 from ingestion.vectorstore import VectorStore
@@ -27,11 +30,19 @@ from mcp_server.tools.cite_source import cite_source as _cite_source
 from mcp_server.tools.list_documents import list_documents as _list_documents
 from mcp_server.tools.summarize_document import summarize_document as _summarize_document
 
-CORPUS_DIR = os.environ.get("GROUNDEDKB_CORPUS_DIR", "corpus")
-PERSIST_PATH = os.environ.get("GROUNDEDKB_INDEX_PATH", ".chroma_index")
+# Resolve the project root once, based on this file's own location
+# (mcp_server/server.py -> mcp-corporate-kb/), so that paths are correct
+# regardless of the current working directory the process is launched
+# from (terminal, PyCharm, `mcp dev`, systemd, etc.). This must match
+# the same PROJECT_ROOT logic used in ingestion/build_index.py, or the
+# server will read from a different (likely empty) index than the one
+# ingestion actually built.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+CORPUS_DIR = os.environ.get("GROUNDEDKB_CORPUS_DIR", str(PROJECT_ROOT / "corpus"))
+PERSIST_PATH = os.environ.get("GROUNDEDKB_INDEX_PATH", str(PROJECT_ROOT / ".chroma_index"))
 EMBEDDING_BACKEND = os.environ.get("GROUNDEDKB_EMBEDDING_BACKEND", "hashing")
 
-mcp = FastMCP("groundedkb")
 
 _embedder = get_embedder(EMBEDDING_BACKEND)
 _store = VectorStore(embedder=_embedder, persist_path=PERSIST_PATH)
@@ -88,4 +99,4 @@ def list_documents(category: str | None = None) -> list[dict]:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=8000)

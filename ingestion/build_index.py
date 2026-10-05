@@ -21,12 +21,18 @@ from ingestion.chunking import chunk_markdown_file
 from ingestion.embeddings import get_embedder
 from ingestion.vectorstore import VectorStore
 
+# Resolve the project root once, based on this file's own location
+# (ingestion/build_index.py -> mcp-corporate-kb/), so that paths are
+# correct regardless of the current working directory the script is
+# launched from (terminal, PyCharm, tests/, etc.).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 
 def build_index(
-    corpus_dir: str = "corpus",
-    persist_path: str = ".chroma_index",
-    backend: str = "hashing",
-    reset: bool = True,
+        corpus_dir: str = str(PROJECT_ROOT / "corpus"),
+        persist_path: str = str(PROJECT_ROOT / ".chroma_index"),
+        backend: str = "hashing",
+        reset: bool = True,
 ) -> dict:
     start = time.perf_counter()
 
@@ -88,8 +94,12 @@ def _print_summary(summary: dict) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Builds the vector index for the corpus.")
-    parser.add_argument("--corpus-dir", default="corpus")
-    parser.add_argument("--persist-path", default=".chroma_index")
+    # These defaults are resolved via PROJECT_ROOT too — previously they
+    # were plain relative strings ("corpus", ".chroma_index"), which
+    # silently overrode the safer defaults on build_index() itself
+    # whenever the script was run from the CLI (the normal case).
+    parser.add_argument("--corpus-dir", default=str(PROJECT_ROOT / "corpus"))
+    parser.add_argument("--persist-path", default=str(PROJECT_ROOT / ".chroma_index"))
     parser.add_argument(
         "--backend",
         default="hashing",

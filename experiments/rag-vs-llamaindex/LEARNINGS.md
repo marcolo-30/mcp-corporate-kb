@@ -40,3 +40,9 @@ Running log of what I learned, what failed and why. Raw material for LinkedIn po
 
 **Decision**
 - Gold is annotated as exact raw text from the corpus files (markdown included), in `data/golden_v2.json`; character spans are computed and validated by code, and must occur exactly once in the document. The original `eval/golden_set.json` is left untouched.
+
+**Annotation cost and scaling**
+- Annotating gold as exact raw text works for 14 questions and forced me to learn the corpus, but it does not scale to hundreds: every fragment must be copied from the source file (markdown markers included, not from the rendered preview), and one wrong character gives `NOT_FOUND`. The `hint` output of `gold check` made the errors quick to fix.
+- Options considered for larger sets: coarser gold (whole sections; fast but inflates recall), tool-assisted matching (paste approximate text, code finds the span), answer-string matching (automatic, but false positives when the same number appears elsewhere), and LLM-generated questions (scale well, but tend to reuse the wording of the source chunk, which makes retrieval look easier than it is; a sample would need manual review).
+- Statistical note: noise shrinks with the square root of n, so going from 14 to 60 questions narrows the confidence interval but does not remove it. With only 8 short documents, hundreds of questions would be near-duplicates; corpus variety matters more than question count.
+- For now I annotate by hand. I will revisit tool-assisted matching only if the manual cost becomes a bottleneck.

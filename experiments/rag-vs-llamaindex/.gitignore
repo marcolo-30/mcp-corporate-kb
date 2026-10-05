@@ -1,6 +1,6 @@
 # Secrets
 .env
-
+LEARNINGS.md
 # Python
 __pycache__/
 *.py[cod]

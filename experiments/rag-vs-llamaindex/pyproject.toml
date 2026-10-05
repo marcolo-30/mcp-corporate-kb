@@ -1,0 +1,41 @@
+[project]
+name = "rag-vs-llamaindex"
+version = "0.1.0"
+description = "Controlled comparison: custom RAG from scratch vs LlamaIndex (vector, hybrid, reranking)."
+requires-python = ">=3.12"  # numpy 2.5.3 requires Python >= 3.12
+
+# All versions are pinned on purpose: this is a comparative experiment and
+# results must be reproducible. Versions checked on PyPI on 2026-10-05.
+dependencies = [
+    "numpy==2.5.3",
+    "python-dotenv==1.2.4",
+    "ollama==0.6.3",
+    "llama-index-core==0.14.25",
+    "llama-index-embeddings-ollama==0.10.0",
+    "llama-index-llms-ollama==0.11.0",
+    "llama-index-retrievers-bm25==0.8.0",
+]
+
+[project.optional-dependencies]
+# Not needed until step 5 (reranking) and step 6 (RAGAS).
+rerank = [
+    "sentence-transformers==6.1.0",
+]
+eval = [
+    "ragas==0.4.3",
+]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.16.10",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

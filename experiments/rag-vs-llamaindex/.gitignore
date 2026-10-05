@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+
+# Local indexes and caches (rebuilt from the corpus)
+.index/
+storage/
+.cache/
+
+# Logs
+*.log
+
+# NOTE: results/ is NOT ignored on purpose: per-question results are part of the evidence.

@@ -9,6 +9,8 @@
   >
 </p>
 
+> **Status: work in progress.** Phase 1 (corpus + golden set) is done. The rest of the pipeline is being built phase by phase (see [Roadmap](#roadmap)). Commands in the Quickstart become runnable as each phase lands.
+
 ## Why this project exists
 
 Across current job postings for Agentic AI / LLM engineering roles, one requirement shows up again and again: **"having built or operated an MCP server, not just consumed one"** — and, right next to it, **"evaluation as a first-class deliverable"** (golden datasets, faithfulness scoring, hallucination detection, quality gates in CI).
@@ -21,21 +23,23 @@ An employee (or an agent acting on their behalf) asks a natural-language questio
 
 ## Repo structure
 
+The repository is `mcp-corporate-kb`; the Python package is named `groundedkb`.
+
 ```
-groundedkb/
+mcp-corporate-kb/
 ├── README.md
-├── pyproject.toml
-├── .github/workflows/ci.yml       # lint + tests + eval as a CI gate
+├── pyproject.toml                 # package: groundedkb
+├── .github/workflows/ci.yml       # lint + tests + eval as a CI gate (planned)
 │
-├── corpus/                        # 7 synthetic corporate documents
-│   ├── politica_vacaciones.md
-│   ├── politica_home_office.md
-│   ├── manual_onboarding.md
-│   ├── contrato_proveedor_cloudtech.md
-│   ├── contrato_proveedor_soporte_ti.md
-│   ├── faq_soporte_ti.md
-│   ├── politica_gastos.md
-│   └── codigo_conducta.md
+├── corpus/                        # 8 synthetic corporate documents
+│   ├── vacation_policy.md
+│   ├── remote_work_policy.md
+│   ├── onboarding_manual.md
+│   ├── vendor_contract_cloudtech.md
+│   ├── vendor_contract_it_support.md
+│   ├── it_support_faq.md
+│   ├── expense_policy.md
+│   └── code_of_conduct.md
 │
 ├── ingestion/                      # chunking, embeddings, vector store build
 │   ├── chunking.py
@@ -46,10 +50,10 @@ groundedkb/
 ├── mcp_server/                     # the MCP server — knows nothing about "agents"
 │   ├── server.py
 │   ├── tools/
-│   │   ├── buscar_politica.py
-│   │   ├── resumir_documento.py
-│   │   ├── citar_fuente.py
-│   │   └── listar_documentos.py
+│   │   ├── search_policy.py
+│   │   ├── summarize_document.py
+│   │   ├── cite_source.py
+│   │   └── list_documents.py
 │   └── guardrails.py               # scoping, structured logging
 │
 ├── agent_client/                   # thin consumer of the MCP server
@@ -61,6 +65,9 @@ groundedkb/
 │   ├── run_eval.py                 # runs v0 vs v1 against the golden set
 │   ├── metrics.py                  # faithfulness, hallucination rate, etc.
 │   └── results/                    # versioned output of each run
+│
+├── experiments/                    # self-contained side studies
+│   └── rag-vs-llamaindex/          # custom RAG vs LlamaIndex (in progress)
 │
 └── tests/
     ├── test_mcp_tools.py
@@ -78,8 +85,8 @@ groundedkb/
 ## Quickstart
 
 ```bash
-git clone https://github.com/<your-username>/groundedkb.git
-cd groundedkb
+git clone https://github.com/marcolo-30/mcp-corporate-kb.git
+cd mcp-corporate-kb
 pip install -e .
 
 # 1. Build the vector index from the corpus
@@ -92,7 +99,7 @@ python -m mcp_server.server
 python -m agent_client.agent
 ```
 
-Full setup should take under 5 minutes on a clean environment.
+Full setup should take under 5 minutes on a clean environment once all phases are complete.
 
 ## Evaluation methodology
 
@@ -109,18 +116,27 @@ The same 16-question golden set (`eval/golden_set.json`) is run against two syst
 
 Metrics computed with [RAGAS](https://github.com/explodinggradients/ragas) where applicable (faithfulness, context precision), plus custom scoring for citation accuracy and the trick-question hallucination check.
 
+## Experiments
+
+### `experiments/rag-vs-llamaindex/` — RAG from scratch vs LlamaIndex
+
+A controlled comparison of the same retrieval pipeline built twice behind one Python interface: **(A)** a custom implementation (chunking, embeddings, vector store, retrieval written by hand) and **(B)** LlamaIndex (vector, hybrid BM25+vector, and hybrid + reranking). It reuses this repo's `corpus/` and an extended copy of the golden set, and reports deterministic retrieval metrics (recall@k, MRR, precision@3), RAGAS and latency.
+
+Status: **in progress** — hypotheses, method and results live in that folder's README. No results have been produced yet.
+
 ## Roadmap
 
-- [x] Phase 1 — Synthetic corpus (7 docs) + golden set (16 Q&A pairs, incl. 2 trick questions)
+- [x] Phase 1 — Synthetic corpus (8 docs) + golden set (16 Q&A pairs, incl. 2 trick questions)
 - [ ] Phase 2 — Ingestion pipeline (chunking, embeddings, vector store)
 - [ ] Phase 3 — MCP server with 4 tools + guardrails
 - [ ] Phase 4 — Agent client (LangGraph) consuming the MCP server
 - [ ] Phase 5 — Evaluation pipeline (v0 vs v1, CI-gated)
 - [ ] Phase 6 — Packaging: architecture diagram, demo recording, CI green
+- [ ] Side study — RAG from scratch vs LlamaIndex (`experiments/rag-vs-llamaindex/`)
 
 ## Tech stack
 
-Python · MCP SDK · LangGraph · Chroma/pgvector · RAGAS · GitHub Actions
+Python · MCP SDK · LangGraph · Chroma/pgvector · RAGAS · GitHub Actions · LlamaIndex (experiments only)
 
 ## Why this exists (short version, for the skim-readers)
 

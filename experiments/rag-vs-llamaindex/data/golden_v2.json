@@ -118,10 +118,6 @@
         {
           "doc": "onboarding_manual.md",
           "text": "within the **first 30 days** of joining"
-        },
-        {
-          "doc": "onboarding_manual.md",
-          "text": "wait for the next open enrollment period, which occurs every July"
         }
       ],
       "old_expected_fragment": "within the first 30 days of joining... wait for the next open enrollment period, which occurs every July"
@@ -157,11 +153,7 @@
       "gold": [
         {
           "doc": "vendor_contract_cloudtech.md",
-          "text": "a service credit equal to **5% of the value of the corresponding monthly invoice**"
-        },
-        {
-          "doc": "vendor_contract_cloudtech.md",
-          "text": "cumulative up to a maximum of 25%"
+          "text": "a service credit equal to **5% of the value of the corresponding monthly invoice** will apply, cumulative up to a maximum of 25%"
         }
       ],
       "old_expected_fragment": "a service credit equal to 5% of the value of the corresponding monthly invoice... cumulative up to a maximum of 25%"

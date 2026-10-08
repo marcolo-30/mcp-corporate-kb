@@ -3,6 +3,8 @@
 Usage (from experiments/rag-vs-llamaindex, venv active):
     python -m rag_compare.gold init     # create data/golden_v2.json skeleton (never overwrites)
     python -m rag_compare.gold prefill  # fill EMPTY gold text from the old expected_fragment
+    python -m rag_compare.gold show [ID]   # print each gold span in context + the gap between parts
+    python -m rag_compare.gold merge ID    # merge a question's gold entries into one span
     python -m rag_compare.gold check    # validate annotations and print resolved char spans
     python -m rag_compare.gold fix      # rewrite loosely-typed annotations as exact raw text
 
@@ -177,6 +179,64 @@ def prefill() -> None:
     print(f"\nPrefilled {filled} question(s), left {skipped} untouched. Now run 'check', then 'fix'.")
 
 
+def _flat(text: str) -> str:
+    return text.replace("\n", "\\n")
+
+
+def show(qid: str | None = None) -> None:
+    """Print each gold span with surrounding context, and the text between consecutive parts."""
+    data = _load_v2()
+    if data is None:
+        return
+    corpus = load_corpus(CORPUS_DIR)
+    for it in data["items"]:
+        if it["type"] != "factual" or (qid and it["id"] != qid):
+            continue
+        print(f"{it['id']}  {it['question']}")
+        prev = None
+        for g in it["gold"]:
+            res = resolve_span(corpus.get(g["doc"], ""), g["text"])
+            if not isinstance(res, tuple):
+                print(f"   {g['doc']}: {res}")
+                continue
+            s, e, _ = res
+            text = corpus[g["doc"]]
+            print(f"   {g['doc']}[{s}:{e}] len={e - s}")
+            print(f"     ...{_flat(text[max(0, s - 40):s])}>>>{_flat(text[s:e])}<<<{_flat(text[e:e + 40])}...")
+            if prev and prev[0] == g["doc"]:
+                gap = s - prev[1]
+                between = _flat(text[prev[1]:s]) if gap >= 0 else "(overlap)"
+                print(f"     gap from previous part: {gap} chars -> {between!r}")
+            prev = (g["doc"], e)
+        print()
+
+
+def merge(qid: str) -> None:
+    """Merge all gold entries of one question (same document) into a single covering span."""
+    data = _load_v2()
+    if data is None:
+        return
+    corpus = load_corpus(CORPUS_DIR)
+    item = next((it for it in data["items"] if it["id"] == qid), None)
+    if item is None or len(item["gold"]) < 2:
+        print(f"{qid}: not found, or fewer than 2 gold entries; nothing to merge.")
+        return
+    docs = {g["doc"] for g in item["gold"]}
+    if len(docs) != 1:
+        print(f"{qid}: entries are in different documents {sorted(docs)}; they cannot be merged.")
+        return
+    doc = docs.pop()
+    spans = [resolve_span(corpus[doc], g["text"]) for g in item["gold"]]
+    if not all(isinstance(r, tuple) for r in spans):
+        print(f"{qid}: some entries do not resolve ({spans}); run 'check' first.")
+        return
+    start, end = min(r[0] for r in spans), max(r[1] for r in spans)
+    item["gold"] = [{"doc": doc, "text": corpus[doc][start:end]}]
+    V2_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"{qid}: merged {len(spans)} entries into {doc}[{start}:{end}] len={end - start}")
+    print(f"   {_flat(corpus[doc][start:end])!r}")
+
+
 def check() -> None:
     data = _load_v2()
     if data is None:
@@ -235,7 +295,17 @@ def fix() -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["init", "prefill", "check", "fix"])
+    parser.add_argument("command", choices=["init", "prefill", "check", "fix", "show", "merge"])
+    parser.add_argument("qid", nargs="?", help="question id for 'show' (optional) and 'merge'")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
-    {"init": lambda: init(args.force), "prefill": prefill, "check": check, "fix": fix}[args.command]()
+    if args.command == "merge" and not args.qid:
+        parser.error("merge needs a question id, e.g. 'merge Q09'")
+    {
+        "init": lambda: init(args.force),
+        "prefill": prefill,
+        "check": check,
+        "fix": fix,
+        "show": lambda: show(args.qid),
+        "merge": lambda: merge(args.qid),
+    }[args.command]()
